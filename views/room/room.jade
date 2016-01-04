@@ -1,0 +1,29 @@
+html
+  head
+    title chatroom
+    link(rel='stylesheet' type='text/css' href='room/room.css')
+    script(src='jquery/dist/jquery.min.js')
+    script(src='/socket.io/socket.io.js')
+    script(src='room/room.js')
+
+  body
+    h1 聊天室
+
+    div
+      button.logout(type='button') 退出
+
+    .left-area
+      .list-area
+        .user-list 用户列表
+        hr
+        each user in users
+          .user-item #{user.username}
+
+    .right-area
+      .message-area
+        .message.template
+
+      .input-area
+        form
+          input(type='text', name='message')
+          button 发送

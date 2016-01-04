@@ -1,0 +1,34 @@
+html
+  head
+   title chatroom
+   link(rel='stylesheet' type='text/css' href='index/index.css')
+   script(src='jquery/dist/jquery.min.js')
+   script(type='text/javascript', src='/socket.io/socket.io.js')
+   script(src='index/index.js')
+
+  body
+    .login
+      h1 登录
+      form
+        .username
+          label 用户名
+          input(type='text', name='username')
+        .password
+          label 密码
+          input(type='password', name='password')
+
+        button 登录
+        a(href='#').switch 注册
+
+    .register.hidden
+      h1 注册
+      form
+        .username
+          label 用户名
+          input(type='text', name='username')
+        .password
+          label 密码
+          input(type='password', name='password')
+
+        button 注册
+        a(href='#').switch 登录

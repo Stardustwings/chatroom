@@ -1,0 +1,20 @@
+{
+  "name": "chatroom",
+  "version": "0.0.0",
+  "authors": [
+    "stardust"
+  ],
+  "description": "A simple chatroom",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4"
+  }
+}

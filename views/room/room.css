@@ -1,0 +1,58 @@
+body {
+  text-align: center;
+}
+
+.left-area {
+  display: inline-block;
+  width: 20%;
+  height: 80%;
+  vertical-align: bottom;
+  border: 1px solid black;
+}
+
+.right-area {
+  position: relative;
+  display: inline-block;
+  width: 70%;
+  height: 80%;
+  vertical-align: bottom;
+  border: 1px solid black;
+}
+
+.input-area {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+}
+
+.input-area form {
+  margin: 0;
+}
+
+.input-area input {
+  width: 90%;
+}
+
+.input-area button {
+  width: 10%
+}
+
+.message-area {
+  text-align: left;
+}
+
+.message {
+  margin: 5px;
+}
+
+.list-area {
+  overflow: auto;
+}
+
+.message-area {
+  overflow: auto;
+}
+
+.template {
+  display: none;
+}
