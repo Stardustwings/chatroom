@@ -10,14 +10,17 @@ html
     h1 聊天室
 
     div
+      span #{username}
       button.logout(type='button') 退出
 
     .left-area
       .list-area
-        .user-list 用户列表
+        .list-title 用户列表
         hr
-        each user in users
-          .user-item #{user.username}
+        .user-item.template
+        .user-list
+          each user in users
+            .user-item #{user}
 
     .right-area
       .message-area

@@ -12,6 +12,8 @@ var io = require('socket.io')(server);
 
 var users = require('./users.json');
 
+var online_users = [];
+
 var sessionMiddleware = session({
   secret: 'my_chatroom',
   resave: false,
@@ -36,8 +38,10 @@ app.set('view engine', 'jade');
 // ---------------------------------
 
 app.get('/', function (req, res) {
-  if (!req.session.username) res.render('index/index');
-  else res.render('room/room', {users: users});
+  var username = req.session.username;
+
+  if (!username) res.render('index/index');
+  else res.render('room/room', {users: online_users, username: username});
 });
 
 app.post('/login', function (req, res) {
@@ -57,22 +61,27 @@ app.post('/login', function (req, res) {
 });
 
 app.post('/register', function (req, res) {
-  var username = req.body.username,
-      password = req.body.password,
-      new_user;
+  try {
+    var username = req.body.username,
+        password = req.body.password,
+        new_user;
 
-  for (var i = 0; i < users.length; i++) {
-    if (users[i].username === username) {
-      return res.json({success: false});
+    for (var i = 0; i < users.length; i++) {
+      if (users[i].username === username) {
+        return res.json({success: false});
+      }
     }
+
+    new_user = {username: username, password: password}
+    users.push(new_user);
+    fs.writeFileSync('./users.json', JSON.stringify(users));
+
+    req.session.username = username;
+    res.json({success: true});
+  } catch (err) {
+    console.log('err: ' + err);
   }
 
-  new_user = {username: username, password: password}
-  users.push(new_user);
-  fs.writeFileSync('./users.json', JSON.stringify(users));
-
-  req.session.username = username;
-  res.json({success: true});
 });
 
 app.post('/logout', function (req, res) {
@@ -83,45 +92,38 @@ app.post('/logout', function (req, res) {
 
 // ---------------------------------
 
-// require('socketio-auth')(io, {
-//   authenticate: authenticate,
-//   postAuthenticate: postAuthenticate
-// });
-
-function authenticate(socket, data, callback) {
-  var username = data.username,
-      password = data.password;
-
-  for (var i = 0; i < users.length; i++) {
-    if (users[i].username === username) {
-      callback(null, users[i].password === password);
-
-      return;
-    }
-  }
-
-  callback(new Error("User not found"));
-}
-
-function postAuthenticate(socket, data) {
-  var username = data.username;
-
-  console.log('post auth');
-
-  socket.client.username = username
-}
-
 io.on('connection', function(socket){
-  console.log('Connect successfully');
+  var username = socket.request.session.username;
+
+  if (!username) return socket.disconnect();
+
+  online_users.push(username);
+
+  io.emit('online_users_change', online_users);
+
+  console.log(username + ' connect successfully');
+
+  console.log(JSON.stringify(online_users));
 
   socket.on('message', function(msg){
-    console.log('get message');
+    io.emit('message', username + ': ' + msg);
+  });
 
-    console.log(socket.request.session);
+  socket.on('force_disconnect', socket.disconnect);
 
-    io.emit('message', msg);
+  socket.on('disconnect', function(socket){
+    for (var i = 0; i < online_users.length; i++) {
+      if (online_users[i] === username) {
+        online_users.splice(i, 1);
+        io.emit('online_users_change', online_users);
+        console.log(username + ' disconnect successfully');
+        return;
+      }
+    }
   });
 });
+
+
 
 // ---------------------------------
 
