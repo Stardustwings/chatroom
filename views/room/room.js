@@ -1,7 +1,9 @@
 
-var socket = io('http://localhost:3000');
+var socket;
 
 $(function() {
+  socket = io(window.location.href);
+
   $('.logout').click(logout);
 
   $('.input-area form').submit(send_message);

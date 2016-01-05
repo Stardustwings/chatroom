@@ -1,7 +1,9 @@
+doctype html
+
 html
   head
     title chatroom
-    link(rel='stylesheet' type='text/css' href='room/room.css')
+    link(rel='stylesheet', type='text/css', href='room/room.css')
     script(src='jquery/dist/jquery.min.js')
     script(src='/socket.io/socket.io.js')
     script(src='room/room.js')
@@ -13,20 +15,19 @@ html
       span #{username}
       button.logout(type='button') 退出
 
-    .left-area
-      .list-area
-        .list-title 用户列表
-        hr
-        .user-item.template
-        .user-list
-          each user in users
-            .user-item #{user}
+    .room-area
+      .left-area
+        .list-area
+          .list-title 用户列表
+          hr
+          .user-item.template
+          .user-list
 
-    .right-area
-      .message-area
-        .message.template
+      .right-area
+        .message-area
+          .message.template
 
-      .input-area
-        form
-          input(type='text', name='message')
-          button 发送
+        .input-area
+          form
+            input(type='text', name='message')
+            button 发送

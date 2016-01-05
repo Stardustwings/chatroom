@@ -1,5 +1,14 @@
+html, body {
+  height: 100%;
+}
+
 body {
   text-align: center;
+}
+
+.room-area {
+  height: 100%;
+  min-width: 480px;
 }
 
 .left-area {
@@ -24,6 +33,7 @@ body {
   position: absolute;
   width: 100%;
   bottom: 0;
+  text-align: left;
 }
 
 .input-area form {
@@ -31,11 +41,11 @@ body {
 }
 
 .input-area input {
-  width: 90%;
+  width: 85%;
 }
 
 .input-area button {
-  width: 10%
+  min-width: 40px;
 }
 
 .message-area {
