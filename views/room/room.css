@@ -6,6 +6,10 @@ body {
   text-align: center;
 }
 
+.hidden, .template {
+  display: none;
+}
+
 .room-area {
   height: 100%;
   min-width: 480px;
@@ -17,6 +21,8 @@ body {
   height: 80%;
   vertical-align: bottom;
   border: 1px solid black;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .right-area {
@@ -57,13 +63,6 @@ body {
   word-break: break-all;
 }
 
-.list-area {
-  height: 95%;
-  width: 100%;
-  overflow-y: scroll;
-  overflow-x: hidden;
-}
-
 .message-area {
   height: 95%;
   width: 100%;
@@ -71,6 +70,55 @@ body {
   overflow-x: hidden;
 }
 
-.template {
-  display: none;
+.left-column, .middle-column, .right-column {
+  display: inline-block;
+  position: relative;
+  height: 80%;
+  border: 1px solid black;
+  vertical-align: bottom;
+}
+
+.left-column {
+  width: 20%;
+}
+
+.middle-column {
+  width: 20%;
+}
+
+.right-column {
+  width: 50%;
+}
+
+.operation-area {
+  position: absolute;
+  height: 30px;
+  width: 100%;
+  bottom: 0;
+  text-align: left;
+  border-top: 1px solid black;
+}
+
+.single-chat .room-area {
+  position: relative;
+}
+
+.single-chat .message-area {
+  height: 80%;
+  width: 90%;
+  margin: auto;
+  border: 1px solid black;
+}
+
+.single-chat .input-area {
+  position: static;
+  width: 90%;
+  bottom: 20px;
+  border: 1px solid black;
+  margin: auto;
+  text-align: center;
+}
+
+.selected {
+  background-color: orange;
 }

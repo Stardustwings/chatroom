@@ -11,17 +11,15 @@ html
   body
     h1 聊天室
 
-    div
-      span #{username}
+    .user-info
+      .username #{username}
       button.logout(type='button') 退出
 
-    .room-area
+    .room-area.group-chat.hidden
       .left-area
-        .list-area
-          .list-title 用户列表
-          hr
-          .user-item.template
-          .user-list
+        .list-title 用户列表
+        .online-user-list
+          .online-user-item.template
 
       .right-area
         .message-area
@@ -31,3 +29,34 @@ html
           form
             input(type='text', name='message')
             button 发送
+
+
+    .room-area.single-chat
+      .left-column
+        .available-title 可邀请用户
+        .available-user-list
+          .available-user-item.template
+
+        .operation-area
+          button.invite-btn(type='button') 邀请
+
+      .middle-column
+        .inviting-title 收到的邀请
+        .inviting-user-list
+          .inviting-user-item.template
+
+        .operation-area
+          button.accept-btn(type='button') 接受
+          button.refuse-btn(type='button') 拒绝
+
+      .right-column
+        .state-title 邀请状态
+        .state 你尚未发起邀请
+
+    .room-area.single-chat.hidden
+      .message-area
+        .message.template
+      .input-area
+        form
+          input(type='text', name='message')
+          button 发送
