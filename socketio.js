@@ -1,4 +1,5 @@
 var fs = require('fs');
+var sessionMiddleware = require('./app').sessionMiddleware;
 
 function on_connect(io) {
   return function(socket) {
@@ -44,6 +45,14 @@ function disconnect_socket(username, io) {
   }
 }
 
-module.exports = function(io) {
+module.exports = function(server) {
+  var io = require('socket.io')(server);
+
+  fs.writeFileSync('./data/online_users.json', '[]');
+
+  io.use(function(socket, next) {
+      sessionMiddleware(socket.request, socket.request.res, next);
+  });
+
   io.on('connection', on_connect(io));
 }
