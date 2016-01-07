@@ -8,6 +8,7 @@ $(function() {
   $('.input-area form').submit(send_message);
 
   socket.on('message', append_message);
+
   socket.on('online_users_change',
     change_user_list('.online-user-list', '.online-user-item'));
 
@@ -21,8 +22,14 @@ $(function() {
 
   socket.on('available_users_change',
     change_user_list('.available-user-list', '.available-user-item'));
-  socket.on('invitation', change_invitation('get_invitation'));
-  socket.on('cancel_invitation', change_invitation('remove_invitation'));
+
+  socket.on('invitation', get_invitation);
+
+  socket.on('cancel_invitation', remove_invitation);
+
+  socket.on('refuse_invitation', cancel_invite);
+
+  socket.on('accept_invitation', enter_single_chat_room);
 });
 
 function logout() {
@@ -69,7 +76,7 @@ function select_inviting_user() {
 }
 
 function change_user_list(user_list_str, user_item_str) {
-  return function change_available_user_list(users) {
+  return function (users) {
     var user_list = $(user_list_str),
         user_item_template = $(user_item_str + '.template').clone().removeClass('template'),
         username = $('.username').text(),
@@ -92,7 +99,7 @@ function cancel_select() {
 
 function invite_user() {
   var invite_btn = $(this),
-      selected_user_element = $('.available-user-item.selected');
+      selected_element = $('.available-user-item.selected');
 
   if (invite_btn.hasClass('is-inviting')) {
     invite_btn.text('邀请');
@@ -101,11 +108,11 @@ function invite_user() {
     return false;
   }
 
-  if (selected_user_element.length === 0) return false;
+  if (selected_element.length === 0) return false;
 
   invite_btn.text('取消');
-  selected_user_element.removeClass('selected');
-  selected_user = selected_user_element.text();
+  selected_element.removeClass('selected');
+  selected_user = selected_element.text();
   invite_btn.addClass('is-inviting');
   socket.emit('invitation', selected_user);
 
@@ -113,58 +120,109 @@ function invite_user() {
 }
 
 function accept_invitation() {
-  var selected_user;
+  var selected_element = $('.inviting-user-item.selected');
 
-  if ($('.inviting-user-item.selected').length === 0) return false;
+  if (selected_element.length === 0) return false;
 
-  selected_user = $('.inviting-user-item.selected').text();
+  selected_user = selected_element.text();
   socket.emit('accept_invitation', selected_user);
 
   return false;
 }
 
 function refuse_invitation() {
-  var selected_user;
+  var selected_element = $('.inviting-user-item.selected');
 
-  if ($('.inviting-user-item.selected').length === 0) return false;
+  if (selected_element.length === 0) return false;
 
-  selected_user = $('.inviting-user-item.selected').text();
+  selected_user = selected_element.text();
+  // change_invitation('remove_invitation')(selected_user);
+  remove_invitation(selected_user);
   socket.emit('refuse_invitation', selected_user);
 
   return false;
 }
 
-function change_invitation(operation) {
-  var invitations = [],
-      change_inviting_list = change_user_list('.inviting-user-list', '.inviting-user-item'),
-      get_invitation,
-      remove_invitation;
+// function change_invitation(operation) {
+//   var invitations = [],
+//       change_inviting_list = change_user_list('.inviting-user-list', '.inviting-user-item'),
+//       get_invitation,
+//       remove_invitation;
 
-  get_invitation = function(inviter) {
-    console.log('inviter: ' + inviter);
+//   get_invitation = function(inviter) {
+//     console.log('inviter: ' + inviter);
 
-    for (var i = 0; i < invitations.length; i++) {
-      if (invitations[i] === inviter) return;
+//     for (var i = 0; i < invitations.length; i++) {
+//       if (invitations[i] === inviter) return;
+//     }
+
+//     invitations.push(inviter);
+
+//     change_user_list('.inviting-user-list', '.inviting-user-item')(invitations);
+//   };
+
+//   remove_invitation = function(inviter) {
+//     console.log('inviter: ' + inviter);
+
+//     for (var i = 0; i < invitations.length; i++) {
+//       if (invitations[i] === inviter) {
+//         invitations.slice(i, 1);
+//         break;
+//       }
+//     }
+
+//     change_user_list('.inviting-user-list', '.inviting-user-item')(invitations);
+//   };
+
+//   if (operation === 'get_invitation') return get_invitation;
+//   else if (operation === 'remove_invitation') return remove_invitation;
+// }
+
+function get_invitation(inviter) {
+  var invitation_elements = $('.inviting-user-item'),
+      jq_element,
+      new_user_item;
+
+  console.log('inviter: ' + inviter);
+
+  for (var i = 0; i < invitation_elements.length; i++) {
+    jq_element = $(invitation_elements[i])
+
+    if (jq_element.text() === inviter) return;
+  }
+
+  new_user_item = $('.inviting-user-item.template').clone()
+                  .removeClass('template').text(inviter);
+
+  $('.inviting-user-list').append(new_user_item);
+};
+
+function remove_invitation(inviter) {
+  var invitation_elements = $('.inviting-user-item'),
+      jq_element;
+
+  console.log('remove inviter: ' + inviter);
+
+  for (var i = 0; i < invitation_elements.length; i++) {
+    jq_element = $(invitation_elements[i])
+
+    if (jq_element.text() === inviter) {
+      jq_element.remove();
+      return;
     }
+  }
+};
 
-    invitations.push(inviter);
+function cancel_invite() {
+  var invite_btn = $('.invite-btn');
 
-    change_inviting_list(invitations);
-  };
+  if (!invite_btn.hasClass('is-inviting')) return;
 
-  remove_invitation = function(inviter) {
-    console.log('inviter: ' + inviter);
+  invite_btn.text('邀请');
+  invite_btn.removeClass('is-inviting');
+  alert('你的邀请已被拒绝');
+}
 
-    for (var i = 0; i < invitations.length; i++) {
-      if (invitations[i] === inviter) {
-        invitations.slice(i, 1);
-        break;
-      }
-    }
-
-    change_inviting_list(invitations);
-  };
-
-  if (operation === 'get_invitation') return get_invitation;
-  else if (operation === 'remove_invitation') return remove_invitation;
+function enter_single_chat_room() {
+  alert('你的邀请已被接受');
 }

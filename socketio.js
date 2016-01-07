@@ -32,6 +32,10 @@ function on_connect(socket) {
   socket.on('invitation', invite_user(socket));
 
   socket.on('cancel_invitation', cancel_invitation(socket));
+
+  socket.on('accept_invitation', accept_invitation(socket));
+
+  socket.on('refuse_invitation', refuse_invitation(socket));
 }
 
 function disconnect_socket(username) {
@@ -91,6 +95,65 @@ function cancel_invitation(socket) {
     io.to(socket.invitee).emit('cancel_invitation', socket.username);
     delete socket.invitee;
   }
+}
+
+function accept_invitation(invitee_socket) {
+  var invitee_id = invitee_socket.id;
+
+  return function(inviter) {
+    var sockets = io.sockets.sockets,
+        inviter_id,
+        room_id;
+
+    for (var i = 0; i < sockets.length; i++) {
+      if (sockets[i].username === inviter) {
+        if (invitee_id !== sockets[i].invitee) return;
+
+        room_id = inviter_id + '-' + invitee_id;
+        delete sockets[i].invitee;
+
+        sockets[i].single_chat = {
+          room_id: room_id,
+          username: invitee_socket.username
+        }
+        invitee_socket.single_chat = {
+          room_id: room_id,
+          username: inviter
+        }
+
+        sockets[i].join(room_id);
+        invitee_socket.join(room_id);
+
+        io.to(sockets[i].id).emit('accept_invitation');
+
+        console.log(invitee_socket.username + ' accept invitation from '+ inviter);
+
+        return;
+      }
+    }
+  }
+}
+
+function refuse_invitation(invitee_socket) {
+  var invitee_id = invitee_socket.id;
+
+  return function(inviter) {
+    var sockets = io.sockets.sockets;
+
+    for (var i = 0; i < sockets.length; i++) {
+      if (sockets[i].username === inviter) {
+        if (invitee_id !== sockets[i].invitee) return;
+
+        delete sockets[i].invitee;
+        io.to(sockets[i].id).emit('refuse_invitation');
+
+        console.log(invitee_socket.username + ' refuse invitation from '+ inviter);
+
+        return;
+      }
+    }
+  }
+
 }
 
 module.exports = function(server) {
