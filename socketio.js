@@ -30,6 +30,8 @@ function on_connect(socket) {
   socket.on('disconnect', disconnect_socket(username));
 
   socket.on('invitation', invite_user(socket));
+
+  socket.on('cancel_invitation', cancel_invitation(socket));
 }
 
 function disconnect_socket(username) {
@@ -68,6 +70,7 @@ function invite_user(inviter_socket) {
     for (var i = 0; i < sockets.length; i++) {
       if (sockets[i].username === invitee) {
         invitee_id = sockets[i].id;
+        inviter_socket.invitee = invitee_id;
         io.to(invitee_id).emit('invitation', inviter_socket.username);
 
         return;
