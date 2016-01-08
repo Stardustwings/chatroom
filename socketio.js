@@ -135,10 +135,7 @@ function invite_user(inviter_socket) {
     console.log('invite: ' + invitee);
     invitee_socket = get_socket_by_username(invitee);
 
-    if (!invitee_socket) {
-      io.to(inviter_socket.id).emit('invitation_error');
-      return;
-    }
+    if (!invitee_socket) return;
 
     invitee_id = invitee_socket.id;
     inviter_socket.invitee = invitee_id;

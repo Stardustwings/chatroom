@@ -1,12 +1,109 @@
 body {
-  text-align: center;
+  background-color: #f1f4f5;
+  font-family: 'Microsoft Yahei',Tahoma,Arial,Helvetica,Simsun,STHeiti;
 }
 
 .hidden {
   display: none;
 }
 
-* {
-  margin: 8px;
+.container {
+  width: 520px;
+  background-color: #f8f8f8;
+  border: 1px solid #cfd6de;
+  margin: auto;
+  margin-top: 50px;
 }
 
+.login, .register {
+  text-align: center;
+}
+
+.header {
+  height: 74px;
+  background-color: #fff;
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+  width: 100%;
+  line-height: 74px;
+}
+
+.row {
+  width: 450px;
+  height: 40px;
+  margin-bottom: 25px;
+  line-height: 43px;
+}
+
+.left-part, .right-part {
+  display: inline-block;
+}
+
+.left-part {
+  font-size: 14px;
+  color: #333;
+  width: 85px;
+  text-align: right;
+  margin-right: 15px;
+  height: 34px;
+  line-height: 34px;
+}
+
+input {
+  width: 260px;
+  height: 35px;
+  line-height: 35px;
+  font-size: 16px;
+  padding: 0 0 0 15px;
+}
+
+.tab {
+  margin-bottom: 40px;
+}
+
+.login-tab, .register-tab {
+  display: inline-block;
+  width: 259px;
+  height: 53px;
+  color: #333;
+  font-size: 18px;
+  text-decoration: none;
+  line-height: 53px;
+  text-align: center;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.login-tab.selected {
+  background-color: #f8f8f8;
+  border-bottom: none;
+  border-right: 1px solid #ddd;
+  border-top: 1px solid #ddd;
+}
+
+.register-tab.selected {
+  border-top: 1px solid #ddd;
+  border-bottom: none;
+  background-color: #f8f8f8;
+  border-left: 1px solid #ddd;
+}
+
+.login-btn, .register-btn {
+  width: 250px;
+  height: 47px;
+  border: #7DB562;
+  border-radius: 3px;
+  color: white;
+  font-size: 20px;
+  letter-spacing: 10px;
+  margin: 20px auto 30px auto;
+}
+
+.login-btn {
+  background-color: #4094D8;
+}
+
+.register-btn{
+  background-color: #7DB562;
+}

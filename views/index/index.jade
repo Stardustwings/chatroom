@@ -9,28 +9,38 @@ html
    script(src='index/index.js')
 
   body
-    .login
-      h1 登录
-      form
-        .username
-          label 用户名
-          input(type='text', name='username')
-        .password
-          label 密码
-          input(type='password', name='password')
+    .container
+      .header
+        | 聊天室
+      .tab
+        a(href='#').login-tab.selected 登录
+        a(href='#').register-tab 注册
+      .login
+        form
+          .row
+            .left-part
+              label 用户名：
+            .right-part
+              input(type='text', name='username')
+          .row
+            .left-part
+              label 密码：
+            .right-part
+              input(type='password', name='password')
 
-        button 登录
-        a(href='#').switch 注册
+          button.login-btn 登录
 
-    .register.hidden
-      h1 注册
-      form
-        .username
-          label 用户名
-          input(type='text', name='username')
-        .password
-          label 密码
-          input(type='password', name='password')
+      .register.hidden
+        form
+          .row
+            .left-part
+              label 用户名：
+            .right-part
+              input(type='text', name='username')
+          .row
+            .left-part
+              label 密码：
+            .right-part
+              input(type='password', name='password')
 
-        button 注册
-        a(href='#').switch 登录
+          button.register-btn 注册
