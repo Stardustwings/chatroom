@@ -12,82 +12,153 @@ function on_connect(socket) {
 
   socket.username = username;
 
+  add_online_user(username);
+  add_available_user(username);
+
+  socket.on('message', send_group_message(socket));
+  socket.on('force_disconnect', socket.disconnect);
+  socket.on('disconnect', disconnect_socket(username));
+  socket.on('invitation', invite_user(socket));
+  socket.on('cancel_invitation', cancel_invitation(socket));
+  socket.on('accept_invitation', accept_invitation(socket));
+  socket.on('refuse_invitation', refuse_invitation(socket));
+  socket.on('single_message', send_single_message(socket));
+  socket.on('leave_single_chat', handle_leave_request(socket));
+}
+
+ function get_socket_by_username(username) {
+  var sockets = io.sockets.sockets;
+
+  for (var i = 0; i < sockets.length; i++) {
+    if (sockets[i].username === username) {
+      return sockets[i];
+    }
+  }
+
+  return;
+ }
+
+function add_online_user(username) {
+  for (var i = 0; i < online_users.length; i++) {
+    if (online_users[i] === username) return false;
+  }
+
   online_users.push(username);
-  console.log('connect ' + JSON.stringify(online_users));
   io.emit('online_users_change', online_users);
+  console.log(username + ' connect successfully');
+  return true;
+}
+
+function remove_online_user(username) {
+  for (var i = 0; i < online_users.length; i++) {
+    if (online_users[i] === username) {
+      online_users.splice(i, 1);
+      io.emit('online_users_change', online_users);
+      console.log(username + ' disconnect successfully');
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function add_available_user(username) {
+  for (var i = 0; i < available_users.length; i++) {
+    if (available_users[i] === username) return false;
+  }
 
   available_users.push(username);
   io.emit('available_users_change', available_users);
+  return true;
+}
 
-  console.log(username + ' connect successfully');
+function remove_available_user(username) {
+  for (var i = 0; i < available_users.length; i++) {
+    if (available_users[i] === username) {
+      available_users.splice(i, 1);
+      io.emit('available_users_change', available_users);
+      return true;
+    }
+  }
 
-  socket.on('message', function(msg){
-    io.emit('message', username + ': ' + msg);
-  });
-
-  socket.on('force_disconnect', socket.disconnect);
-
-  socket.on('disconnect', disconnect_socket(username));
-
-  socket.on('invitation', invite_user(socket));
-
-  socket.on('cancel_invitation', cancel_invitation(socket));
-
-  socket.on('accept_invitation', accept_invitation(socket));
-
-  socket.on('refuse_invitation', refuse_invitation(socket));
+  return false;
 }
 
 function disconnect_socket(username) {
   return function(socket) {
-    for (var i = 0; i < online_users.length; i++) {
-      if (online_users[i] === username) {
-        online_users.splice(i, 1);
+    var another_user,
+        another_user_socket,
+        room_id;
 
-        console.log('disconnect ' + JSON.stringify(online_users));
-        io.emit('online_users_change', online_users);
-        console.log(username + ' disconnect successfully');
-        break;
-      }
+    if (socket.single_chat) {
+      another_user = socket.single_chat.username;
+      leave_single_chat(another_user);
     }
 
-    for (var i = 0; i < available_users.length; i++) {
-      if (available_users[i] === username) {
-        available_users.splice(i, 1);
-        io.emit('available_users_change', available_users);
-        break;
-      }
-    }
+    remove_online_user(username);
+    remove_available_user(username);
 
+  }
+}
+
+function send_group_message(socket) {
+  return function(msg) {
+    var username = socket.username;
+
+    io.emit('message', username + ': ' + msg);
+  }
+}
+
+function send_single_message(socket) {
+  return function(msg) {
+    var room_id,
+        username;
+
+    if (!socket.single_chat) return;
+
+    room_id = socket.single_chat.room_id;
+    username = socket.username;
+
+    console.log(username + ' send single message');
+
+    io.to(room_id).emit('single_message', username + ': ' + msg);
   }
 }
 
 function invite_user(inviter_socket) {
   return function(invitee) {
-    var sockets = io.sockets.sockets,
+    var invitee_socket,
         invitee_id;
 
+    if (inviter_socket.invitee || inviter_socket.single_chat) return;
+
     console.log('invite: ' + invitee);
+    invitee_socket = get_socket_by_username(invitee);
 
-    if (inviter_socket.invitee) return;
-
-    for (var i = 0; i < sockets.length; i++) {
-      if (sockets[i].username === invitee) {
-        invitee_id = sockets[i].id;
-        inviter_socket.invitee = invitee_id;
-        io.to(invitee_id).emit('invitation', inviter_socket.username);
-
-        return;
-      }
+    if (!invitee_socket) {
+      io.to(inviter_socket.id).emit('invitation_error');
+      return;
     }
 
-    io.to(inviter_socket.id).emit('invitation_error');
+    invitee_id = invitee_socket.id;
+    inviter_socket.invitee = invitee_id;
+    io.to(invitee_id).emit('invitation', inviter_socket.username);
   }
+}
+
+function enter_single_chat(socket, room_id, username) {
+  remove_available_user(socket.username);
+
+  socket.single_chat = {
+    room_id: room_id,
+    username: username
+  }
+
+  socket.join(room_id);
 }
 
 function cancel_invitation(socket) {
   return function() {
-
     if (!socket.invitee) return;
 
     console.log('cancel_invitation: ' + socket.username);
@@ -98,62 +169,74 @@ function cancel_invitation(socket) {
 }
 
 function accept_invitation(invitee_socket) {
-  var invitee_id = invitee_socket.id;
-
   return function(inviter) {
-    var sockets = io.sockets.sockets,
+    var invitee = invitee_socket.username,
+        invitee_id = invitee_socket.id,
+        inviter_socket = get_socket_by_username(inviter),
         inviter_id,
         room_id;
 
-    for (var i = 0; i < sockets.length; i++) {
-      if (sockets[i].username === inviter) {
-        if (invitee_id !== sockets[i].invitee) return;
+    if (!inviter_socket || inviter_socket.invitee != invitee_id) return;
 
-        room_id = inviter_id + '-' + invitee_id;
-        delete sockets[i].invitee;
+    inviter_id = inviter_socket.id;
+    room_id = inviter_id + '-' + invitee_id;
+    delete inviter_socket.invitee;
 
-        sockets[i].single_chat = {
-          room_id: room_id,
-          username: invitee_socket.username
-        }
-        invitee_socket.single_chat = {
-          room_id: room_id,
-          username: inviter
-        }
+    enter_single_chat(inviter_socket, room_id, invitee);
+    enter_single_chat(invitee_socket, room_id, inviter);
 
-        sockets[i].join(room_id);
-        invitee_socket.join(room_id);
+    io.to(inviter_socket.id).emit('accept_invitation');
 
-        io.to(sockets[i].id).emit('accept_invitation');
+    console.log(invitee_socket.username + ' accept invitation from '+ inviter);
 
-        console.log(invitee_socket.username + ' accept invitation from '+ inviter);
-
-        return;
-      }
-    }
+    return;
   }
 }
 
 function refuse_invitation(invitee_socket) {
-  var invitee_id = invitee_socket.id;
-
   return function(inviter) {
-    var sockets = io.sockets.sockets;
+    var inviter_socket = get_socket_by_username(inviter),
+        invitee_id = invitee_socket.id,
+        invitee = invitee_socket.username;
 
-    for (var i = 0; i < sockets.length; i++) {
-      if (sockets[i].username === inviter) {
-        if (invitee_id !== sockets[i].invitee) return;
 
-        delete sockets[i].invitee;
-        io.to(sockets[i].id).emit('refuse_invitation');
+    if (!inviter_socket || inviter_socket.invitee !== invitee_id) return;
 
-        console.log(invitee_socket.username + ' refuse invitation from '+ inviter);
+    delete inviter_socket.invitee;
+    io.to(inviter_socket.id).emit('refuse_invitation');
 
-        return;
-      }
-    }
+    console.log(invitee + ' refuse invitation from '+ inviter);
   }
+}
 
+function handle_leave_request(socket) {
+  return function() {
+    var another_user;
+
+    if (!socket.single_chat) return;
+
+    another_user = socket.single_chat.username;
+
+    leave_single_chat('', socket);
+
+    leave_single_chat(another_user);
+  }
+}
+
+function leave_single_chat(username, socket) {
+  var room_id;
+
+  if(!socket) socket = get_socket_by_username(username);
+  else username = socket.username;
+
+  if (!socket || !socket.single_chat) return;
+
+  room_id = socket.single_chat.room_id;
+  socket.leave(room_id);
+  delete socket.single_chat;
+  add_available_user(username)
+
+  console.log(username + ' leave single chat');
 }
 
 module.exports = function(server) {
@@ -165,3 +248,4 @@ module.exports = function(server) {
 
   io.on('connection', on_connect);
 }
+

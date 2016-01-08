@@ -5,7 +5,7 @@ $(function() {
   socket = io(window.location.href);
 
   $('.logout').click(logout);
-  $('.input-area form').submit(send_message);
+  $('.group-chat .input-area form').submit(send_message);
 
   socket.on('message', append_message);
 
@@ -22,14 +22,16 @@ $(function() {
 
   socket.on('available_users_change',
     change_user_list('.available-user-list', '.available-user-item'));
-
   socket.on('invitation', get_invitation);
-
   socket.on('cancel_invitation', remove_invitation);
-
   socket.on('refuse_invitation', cancel_invite);
-
   socket.on('accept_invitation', enter_single_chat_room);
+
+  $('.single-chat .input-area form').submit(send_single_message);
+  $('.leave-btn').click(leave_single_chat);
+
+  socket.on('single_message', append_single_message);
+  socket.on(receive_leave_message);
 });
 
 function logout() {
@@ -41,23 +43,25 @@ function logout() {
 }
 
 function send_message() {
-  var message = $('.input-area form input').val();
+  var group_chat_input = $('.group-chat .input-area form input'),
+      message = group_chat_input.val();
 
   if (message === '') return false;
 
   socket.emit('message', message);
-  $('.input-area form input').val('');
+  group_chat_input.val('');
   return false;
 }
 
 function append_message(msg) {
-  var new_message = $('.message.template').clone();
+  var new_message = $('.group-chat .message.template').clone(),
+      message_area = $('.group-chat .message-area');
 
   new_message.removeClass('template').text(msg);
 
-  $('.message-area').append(new_message);
+  message_area.append(new_message);
 
-  $(".message-area").scrollTop($(".message-area")[0].scrollHeight);
+  message_area.scrollTop(message_area[0].scrollHeight);
 }
 
 
@@ -136,47 +140,12 @@ function refuse_invitation() {
   if (selected_element.length === 0) return false;
 
   selected_user = selected_element.text();
-  // change_invitation('remove_invitation')(selected_user);
   remove_invitation(selected_user);
   socket.emit('refuse_invitation', selected_user);
 
   return false;
 }
 
-// function change_invitation(operation) {
-//   var invitations = [],
-//       change_inviting_list = change_user_list('.inviting-user-list', '.inviting-user-item'),
-//       get_invitation,
-//       remove_invitation;
-
-//   get_invitation = function(inviter) {
-//     console.log('inviter: ' + inviter);
-
-//     for (var i = 0; i < invitations.length; i++) {
-//       if (invitations[i] === inviter) return;
-//     }
-
-//     invitations.push(inviter);
-
-//     change_user_list('.inviting-user-list', '.inviting-user-item')(invitations);
-//   };
-
-//   remove_invitation = function(inviter) {
-//     console.log('inviter: ' + inviter);
-
-//     for (var i = 0; i < invitations.length; i++) {
-//       if (invitations[i] === inviter) {
-//         invitations.slice(i, 1);
-//         break;
-//       }
-//     }
-
-//     change_user_list('.inviting-user-list', '.inviting-user-item')(invitations);
-//   };
-
-//   if (operation === 'get_invitation') return get_invitation;
-//   else if (operation === 'remove_invitation') return remove_invitation;
-// }
 
 function get_invitation(inviter) {
   var invitation_elements = $('.inviting-user-item'),
@@ -225,4 +194,36 @@ function cancel_invite() {
 
 function enter_single_chat_room() {
   alert('你的邀请已被接受');
+}
+
+function send_single_message() {
+  var single_chat_input = $('.single-chat .input-area form input'),
+      message = single_chat_input.val();
+
+  if (message === '') return false;
+
+  socket.emit('single_message', message);
+  single_chat_input.val('');
+  return false;
+}
+
+function leave_single_chat() {
+  socket.emit('leave_single_chat');
+}
+
+function append_single_message(msg) {
+  var new_message = $('.single-chat .message.template').clone(),
+      message_area = $('.single-chat .message-area');
+
+  console.log('receive single message');
+
+  new_message.removeClass('template').text(msg);
+
+  message_area.append(new_message);
+
+  message_area.scrollTop(message_area[0].scrollHeight);
+}
+
+function receive_leave_message() {
+  console.log('receive leave message');
 }
