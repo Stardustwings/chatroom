@@ -85,6 +85,8 @@ function append_message(msg) {
 
 
 function select_available_user() {
+  if ($('.invite-btn').hasClass('is-inviting')) return;
+
   $('.available-user-item').removeClass('selected');
   $(this).addClass('selected');
 
@@ -134,10 +136,13 @@ function cancel_select() {
 
 function invite_user() {
   var invite_btn = $(this),
-      selected_element = $('.available-user-item.selected');
+      selected_element = $('.available-user-item.selected'),
+      selected_user;
 
   if (invite_btn.hasClass('is-inviting')) {
     invite_btn.text('邀请');
+    $('.invitation-text .default-text').removeClass('hidden');
+    $('.invitation-text .custom-text').addClass('hidden');
     invite_btn.removeClass('is-inviting');
     socket.emit('cancel_invitation');
     return false;
@@ -148,6 +153,9 @@ function invite_user() {
   invite_btn.text('取消');
   selected_element.removeClass('selected');
   selected_user = selected_element.text();
+  $('.invitation-text .default-text').addClass('hidden');
+  $('.invitation-text .custom-text').removeClass('hidden');
+  $('.invitation-text .username').text(selected_user);
   invite_btn.addClass('is-inviting');
   socket.emit('invitation', selected_user);
 
@@ -160,6 +168,7 @@ function accept_invitation() {
   if (selected_element.length === 0) return false;
 
   selected_user = selected_element.text();
+  selected_element.remove();
   socket.emit('accept_invitation', selected_user);
 
   return false;
@@ -171,7 +180,7 @@ function refuse_invitation() {
   if (selected_element.length === 0) return false;
 
   selected_user = selected_element.text();
-  remove_invitation(selected_user);
+  selected_element.remove();
   socket.emit('refuse_invitation', selected_user);
 
   return false;
@@ -220,12 +229,23 @@ function cancel_invite() {
 
   invite_btn.text('邀请');
   invite_btn.removeClass('is-inviting');
+  $('.invitation-text .default-text').removeClass('hidden');
+  $('.invitation-text .custom-text').addClass('hidden');
   alert('你的邀请已被拒绝');
 }
 
-function enter_single_chat_room() {
+function enter_single_chat_room(username) {
+  var invite_btn = $('.invite-btn');
+
   $('.invitation-wrapper').addClass('hidden');
   $('.chatting-wrapper').removeClass('hidden');
+
+  $('.single-info .username').text(username);
+
+  invite_btn.text('邀请');
+  invite_btn.removeClass('is-inviting');
+  $('.invitation-text .default-text').removeClass('hidden');
+  $('.invitation-text .custom-text').addClass('hidden').text('');
 
   alert('单聊模式连接成功');
 }
@@ -261,5 +281,6 @@ function append_single_message(msg) {
 function receive_leave_message() {
   $('.invitation-wrapper').removeClass('hidden');
   $('.chatting-wrapper').addClass('hidden');
+
   alert('你已退出单聊模式');
 }

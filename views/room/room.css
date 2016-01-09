@@ -257,11 +257,11 @@ body {
 }
 
 
-.chatting-wrapper .room-header .fa {
+.room-header .fa {
   margin: 13px 6px auto 6px;
 }
 
-.chatting-wrapper .room-header .username {
+.room-header .username {
   margin-right: 6px;
 }
 

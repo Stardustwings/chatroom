@@ -42,9 +42,16 @@ html
             input(type='text', name='message', placeholder='请输入要发送的消息，按回车发送')
 
     .room-area.single-chat.hidden
+
       .invitation-wrapper
         .room-header
-          .invitation-text 你尚未向任何用户发出单聊邀请
+          .invitation-text
+            .default-text 你尚未向任何用户发出单聊邀请
+            .custom-text.hidden
+              span 你正在邀请
+              i.fa.fa-user
+              span.username
+              span 进入单聊模式
         .left-column
           .list-header
             span.title-text 可邀请用户
@@ -59,7 +66,6 @@ html
             button.refuse-btn(type='button') 拒绝
           .inviting-user-list
             .inviting-user-item.user-item.template
-
 
       .chatting-wrapper.hidden
         .room-header

@@ -182,7 +182,8 @@ function accept_invitation(invitee_socket) {
     enter_single_chat(inviter_socket, room_id, invitee);
     enter_single_chat(invitee_socket, room_id, inviter);
 
-    io.to(room_id).emit('accept_invitation');
+    io.to(inviter_id).emit('accept_invitation', invitee);
+    io.to(invitee_id).emit('accept_invitation', inviter);
 
     console.log(invitee_socket.username + ' accept invitation from '+ inviter);
 
@@ -195,7 +196,6 @@ function refuse_invitation(invitee_socket) {
     var inviter_socket = get_socket_by_username(inviter),
         invitee_id = invitee_socket.id,
         invitee = invitee_socket.username;
-
 
     if (!inviter_socket || inviter_socket.invitee !== invitee_id) return;
 
