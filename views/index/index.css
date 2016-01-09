@@ -10,9 +10,9 @@ body {
 .container {
   width: 520px;
   background-color: #f8f8f8;
-  border: 1px solid #cfd6de;
   margin: auto;
   margin-top: 50px;
+  overflow: hidden;
 }
 
 .login, .register {
@@ -92,7 +92,7 @@ input {
 .login-btn, .register-btn {
   width: 250px;
   height: 47px;
-  border: #7DB562;
+  border: none;
   border-radius: 3px;
   color: white;
   font-size: 20px;
@@ -100,10 +100,16 @@ input {
   margin: 20px auto 30px auto;
 }
 
+.login-btn:hover, .register-btn:hover {
+  cursor: pointer;
+}
+
 .login-btn {
+  border-color: #4094D8;
   background-color: #4094D8;
 }
 
 .register-btn{
+  border-color: #7DB562;
   background-color: #7DB562;
 }

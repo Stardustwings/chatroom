@@ -3,21 +3,33 @@ doctype html
 html
   head
     title chatroom
+    link(rel='stylesheet', type='text/css', href='components-font-awesome/css/font-awesome.min.css')
     link(rel='stylesheet', type='text/css', href='room/room.css')
     script(src='jquery/dist/jquery.min.js')
     script(src='/socket.io/socket.io.js')
     script(src='room/room.js')
 
   body
-    h1 聊天室
+    .header
+      .title 聊天室
 
-    .user-info
-      .username #{username}
-      button.logout(type='button') 退出
+      .group-chat-tab.tab.selected
+        i.fa.fa-users
+        span.tab-text 群聊
+      .single-chat-tab.tab
+        i.fa.fa-user
+        span.tab-text 单聊
+      .logout.tab
+        i.fa.fa-sign-out
+        span.logout-text 退出
 
-    .room-area.group-chat
+      .user-info.tab
+        i.fa.fa-user
+        span.username #{username}
+
+    .group-chat.room-area
       .left-area
-        .list-title 用户列表
+        .list-title 在线用户
         .online-user-list
           .online-user-item.template
 
@@ -27,37 +39,41 @@ html
 
         .input-area
           form
-            input(type='text', name='message')
-            button 发送
+            input(type='text', name='message', placeholder='请输入要发送的消息，按回车发送')
+
+    .room-area.single-chat.hidden
+      .invitation-wrapper
+        .room-header
+          .invitation-text 你尚未向任何用户发出单聊邀请
+        .left-column
+          .list-header
+            span.title-text 可邀请用户
+            button.invite-btn(type='button') 邀请
+          .available-user-list
+            .available-user-item.user-item.template
+
+        .right-column
+          .list-header
+            span.title-text 收到的邀请
+            button.accept-btn(type='button') 接受
+            button.refuse-btn(type='button') 拒绝
+          .inviting-user-list
+            .inviting-user-item.user-item.template
 
 
-    .room-area.single-chat
-      .left-column
-        .available-title 可邀请用户
-        .available-user-list
-          .available-user-item.template
+      .chatting-wrapper.hidden
+        .room-header
+          .single-info
+            span 与
+            i.fa.fa-user
+            span.username bbb
+            span 对话中...
+          .leave
+            i.fa.fa-sign-out
+            span.leave-text 离开
+        .message-area
+          .message.template
 
-        .operation-area
-          button.invite-btn(type='button') 邀请
-
-      .middle-column
-        .inviting-title 收到的邀请
-        .inviting-user-list
-          .inviting-user-item.template
-
-        .operation-area
-          button.accept-btn(type='button') 接受
-          button.refuse-btn(type='button') 拒绝
-
-      .right-column
-        .state-title 邀请状态
-        .state 你尚未发起邀请
-
-    .room-area.single-chat
-      button.leave-btn(type='button') 离开
-      .message-area
-        .message.template
-      .input-area
-        form
-          input(type='text', name='message')
-          button 发送
+        .input-area
+          form
+            input(type='text', name='message', placeholder='请输入要发送的消息，按回车发送')

@@ -4,13 +4,13 @@ var socket;
 $(function() {
   socket = io(window.location.href);
 
+  $('.group-chat-tab').click(switch_to_group_tab);
+  $('.single-chat-tab').click(switch_to_single_tab);
   $('.logout').click(logout);
   $('.group-chat .input-area form').submit(send_message);
 
   socket.on('message', append_message);
-
-  socket.on('online_users_change',
-    change_user_list('.online-user-list', '.online-user-item'));
+  socket.on('online_users_change', change_online_user_list);
 
   $(document).on('click', '.available-user-item', select_available_user);
   $(document).on('click', '.inviting-user-item', select_inviting_user);
@@ -20,19 +20,38 @@ $(function() {
   $('.refuse-btn').click(refuse_invitation);
 
 
-  socket.on('available_users_change',
-    change_user_list('.available-user-list', '.available-user-item'));
+  socket.on('available_users_change', change_available_user_list);
   socket.on('invitation', get_invitation);
   socket.on('cancel_invitation', remove_invitation);
   socket.on('refuse_invitation', cancel_invite);
   socket.on('accept_invitation', enter_single_chat_room);
 
   $('.single-chat .input-area form').submit(send_single_message);
-  $('.leave-btn').click(leave_single_chat);
+  $('.leave').click(leave_single_chat);
 
   socket.on('single_message', append_single_message);
-  socket.on(receive_leave_message);
+  socket.on('leave_single_chat', receive_leave_message);
 });
+
+function switch_to_group_tab() {
+  if ($('.group-chat-tab').hasClass('selected')) return;
+
+  $('.group-chat-tab').addClass('selected');
+  $('.single-chat-tab').removeClass('selected');
+
+  $('.group-chat').removeClass('hidden');
+  $('.single-chat').addClass('hidden');
+}
+
+function switch_to_single_tab() {
+  if ($('.single-chat-tab').hasClass('selected')) return;
+
+  $('.single-chat-tab').addClass('selected');
+  $('.group-chat-tab').removeClass('selected');
+
+  $('.single-chat').removeClass('hidden');
+  $('.group-chat').addClass('hidden');
+}
 
 function logout() {
   socket.emit('force_disconnect');
@@ -79,26 +98,38 @@ function select_inviting_user() {
   return false;
 }
 
-function change_user_list(user_list_str, user_item_str) {
-  return function (users) {
-    var user_list = $(user_list_str),
-        user_item_template = $(user_item_str + '.template').clone().removeClass('template'),
-        username = $('.username').text(),
-        user_item;
+function change_online_user_list(users) {
+  var user_list = $('.online-user-list'),
+      user_item_template = $('.online-user-item' + '.template').clone().removeClass('template'),
+      username = $('.username').text(),
+      user_item;
 
-    $(user_item_str).not('.template').remove();
+  $('.online-user-item').not('.template').remove();
 
-    for (var i = 0 ; i < users.length; i++) {
-      if (users[i] === username) continue;
+  for (var i = 0 ; i < users.length; i++) {
+    user_item = user_item_template.clone().text(users[i]);
+    user_list.append(user_item);
+  }
+}
 
-      user_item = user_item_template.clone().text(users[i]);
-      user_list.append(user_item);
-    }
+function change_available_user_list(users) {
+  var user_list = $('.available-user-list'),
+      user_item_template = $('.available-user-item' + '.template').clone().removeClass('template'),
+      username = $('.user-info .username').text(),
+      user_item;
+
+  $('.available-user-item').not('.template').remove();
+
+  for (var i = 0 ; i < users.length; i++) {
+    if (users[i] === username) continue;
+
+    user_item = user_item_template.clone().text(users[i]);
+    user_list.append(user_item);
   }
 }
 
 function cancel_select() {
-  $('.selected').removeClass('selected');
+  $('.single-chat .selected').removeClass('selected');
 }
 
 function invite_user() {
@@ -193,7 +224,10 @@ function cancel_invite() {
 }
 
 function enter_single_chat_room() {
-  alert('你的邀请已被接受');
+  $('.invitation-wrapper').addClass('hidden');
+  $('.chatting-wrapper').removeClass('hidden');
+
+  alert('单聊模式连接成功');
 }
 
 function send_single_message() {
@@ -225,5 +259,7 @@ function append_single_message(msg) {
 }
 
 function receive_leave_message() {
-  console.log('receive leave message');
+  $('.invitation-wrapper').removeClass('hidden');
+  $('.chatting-wrapper').addClass('hidden');
+  alert('你已退出单聊模式');
 }

@@ -1,124 +1,294 @@
 html, body {
   height: 100%;
+  margin: 0;
 }
 
 body {
-  text-align: center;
+  background-color: #f1f4f5;
+  font-family: 'Microsoft Yahei',Tahoma,Arial,Helvetica,Simsun,STHeiti;
 }
 
 .hidden, .template {
   display: none;
 }
 
-.room-area {
-  height: 100%;
-  min-width: 480px;
+.header {
+  height: 50px;
+  min-width: 500px;
+  background: url(header.jpg) repeat-x;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.header .title {
+  display: inline-block;
+  font-size: 28px;
+  margin: 5px auto auto 20px;
+}
+
+.tab {
+  height: 50px;
+  width: 80px;
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+.tab:hover {
+  cursor: pointer;
+}
+
+.group-chat-tab.selected, .single-chat-tab.selected {
+  background-color: #095FB3;
+}
+
+.group-chat-tab, .single-chat-tab {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.group-chat-tab {
+  margin-left: 40px;
+}
+
+.user-info, .logout {
+  float: right;
+}
+
+.user-info .username {
+  text-overflow:ellipsis;
+  overflow:hidden;
+  white-space:nowrap;
+}
+
+.user-info:hover, .logout:hover {
+  background-color: #095FB3;
+}
+
+.tab .fa {
+  margin: 17px 10px auto 10px;
+}
+
+.group-chat, .invitation-wrapper, .chatting-wrapper {
+  width: 80%;
+  min-width: 560px;
+  height: 560px;
+  border: 1px solid #cfd6de;
+  margin: auto;
+  background-color: white;
+  overflow: hidden;
 }
 
 .left-area {
-  display: inline-block;
-  width: 20%;
-  height: 80%;
+  float: left;
+  width: 200px;
+  height: 100%;
   vertical-align: bottom;
-  border: 1px solid black;
+  border-right: 1px solid #cfd6de;
+  text-align: center;
+}
+
+.online-user-list {
+  height: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
 }
 
 .right-area {
   position: relative;
-  display: inline-block;
-  width: 70%;
-  height: 80%;
+  height: 100%;
   vertical-align: bottom;
-  border: 1px solid black;
   overflow: hidden;
+  margin-left: 200px;
+}
+
+
+.message {
+  margin-bottom: 5px;
+  word-break: break-all;
+}
+
+.message-area {
+  height: 512px;
+  padding: 8px;
+  border-bottom: 1px solid #cfd6de;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .input-area {
   position: absolute;
   width: 100%;
+  height: 28px
   bottom: 0;
   text-align: left;
 }
 
-.input-area form {
-  margin: 0;
-}
-
 .input-area input {
-  width: 85%;
+  border: none;
+  outline: none;
+  height: 28px;
+  width: 90%;
+  line-height: 28px;
+  font-size: 15px;
+  padding: 0 0 0 15px;
 }
 
-.input-area button {
-  min-width: 40px;
+.single-chat .room-header {
+  height: 40px;
+  font-size: 16px;
+  color: #333;
+  border-bottom: 1px solid #cfd6de;
+  background-color: #F8F8F8;
 }
 
-.message-area {
-  text-align: left;
+.list-title, .list-header {
+  height: 38px;
+  line-height: 38px;
+  border-bottom: 1px solid #cfd6de;
+  font-size: 18px;
+  /*padding: 8px 0 0 5px;*/
+  margin-bottom: 3px;
 }
 
-.message {
-  margin: 5px;
-  word-break: break-all;
+.invitation-wrapper {
+  width: 640px;
 }
 
-.message-area {
-  height: 95%;
-  width: 100%;
+.invitation-wrapper .room-header {
+  text-align: center;
+  line-height: 40px;
+}
+
+.left-column, .right-column {
+  height: 100%;
+
+}
+
+.left-column {
+  float: left;
+  width: 310px;
+  border-right: 1px solid #cfd6de;
+}
+
+.right-column {
+  margin-left: 310px;
+}
+
+.left-column .title-text {
+  margin-left: 60px;
+}
+
+.right-column .title-text {
+  margin-left: 40px;
+}
+
+.invite-btn, .accept-btn, .refuse-btn {
+  width: 60px;
+  height: 30px;
+  border: none;
+  border-radius: 3px;
+  color: white;
+  font-size: 15px;
+  letter-spacing: 5px;
+}
+
+.invite-btn:hover, .accept-btn:hover, .refuse-btn:hover {
+  cursor: pointer;
+}
+
+.invite-btn {
+  border-color: #4094D8;
+  background-color: #4094D8;
+  margin-left: 30px;
+}
+
+.invite-btn.is-inviting {
+  border-color: #BBBBBB;
+  background-color: #BBBBBB;
+}
+
+.accept-btn {
+  border-color: #7DB562;
+  background-color: #7DB562;
+  margin-left: 15px;
+}
+
+.refuse-btn {
+  border-color: #D9534F;
+  background-color: #D9534F;
+  margin-left: 15px;
+}
+
+.available-user-list, .inviting-user-list {
+  height: 100%;
+  text-align: center;
   overflow-y: scroll;
   overflow-x: hidden;
 }
 
-.left-column, .middle-column, .right-column {
-  display: inline-block;
-  position: relative;
-  height: 80%;
-  border: 1px solid black;
-  vertical-align: bottom;
+.user-item {
+  height: 35px;
+  line-height: 35px;
 }
 
-.left-column {
-  width: 20%;
-}
-
-.middle-column {
-  width: 20%;
-}
-
-.right-column {
-  width: 50%;
-}
-
-.operation-area {
-  position: absolute;
-  height: 30px;
-  width: 100%;
-  bottom: 0;
-  text-align: left;
-  border-top: 1px solid black;
-}
-
-.single-chat .room-area {
-  position: relative;
-}
-
-.single-chat .message-area {
-  height: 80%;
-  width: 90%;
-  margin: auto;
-  border: 1px solid black;
-}
-
-.single-chat .input-area {
-  position: static;
-  width: 90%;
-  bottom: 20px;
-  border: 1px solid black;
-  margin: auto;
-  text-align: center;
+.user-item:not(.selected):hover {
+  background-color: #f1f4f5;
+  cursor: pointer;
 }
 
 .selected {
-  background-color: orange;
+  background-color: #BBB;
 }
+
+.online-user-item {
+  font-size: 16px;
+  padding: 3px;
+}
+
+.online-user-item:hover {
+  background-color: #f1f4f5;
+  cursor: pointer;
+}
+
+
+.single-chat .chatting-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+
+.chatting-wrapper .room-header .fa {
+  margin: 13px 6px auto 6px;
+}
+
+.chatting-wrapper .room-header .username {
+  margin-right: 6px;
+}
+
+.chatting-wrapper .single-info {
+  height: 40px;
+  display: inline-block;
+  margin-left: 90px;
+}
+
+.chatting-wrapper .leave {
+  height: 40px;
+  width: 70px;
+  float: right;
+  margin-right: 20px;
+}
+
+.chatting-wrapper .leave:hover {
+  background-color: #DCDCDC;
+  cursor: pointer;
+}
+
+.chatting-wrapper .message-area {
+  height: 470px;
+  width: auto;
+}
+
+
+
+
+
